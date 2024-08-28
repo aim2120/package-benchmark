@@ -149,8 +149,10 @@ extension BenchmarkTool {
                     }
 
                     if benchmarks.isEmpty { // if we read from baseline and didn't run them, we put in some fake entries for the compare
-                        currentBaseline.results.keys.forEach { baselineKey in
-                            if let benchmark: Benchmark = .init(baselineKey.name, closure:{_ in}) {
+                        currentBaseline.results.forEach { (baselineKey, baselineValue) in
+                            let thresholds = baselineValue.reduce(into: [BenchmarkMetric: BenchmarkThresholds]()) { $0[$1.metric] = $1.thresholds }
+                            let configuration = Benchmark.Configuration(thresholds: thresholds)
+                            if let benchmark: Benchmark = .init(baselineKey.name, configuration: configuration, closure:{_ in}) {
                                 benchmark.target = baselineKey.target
                                 benchmarks.append(benchmark)
                             }
